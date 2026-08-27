@@ -1,0 +1,21 @@
+{
+  "zookeep-project-guid": "9190fdb7-6451-46d3-878a-8a739611ec5b",
+  "name": "m1snippets",
+  "repo-type": "python-2026-03",
+  "license": "CC0-1.0",
+  "repository": {
+    "name": "m1snippets",
+    "visibility": "public"
+  },
+  "python": {
+    "distribution": {
+      "name": "m1snippets"
+    },
+    "import-packages": [
+      {
+        "name": "m1snippets",
+        "path": "src/m1snippets"
+      }
+    ]
+  }
+}
