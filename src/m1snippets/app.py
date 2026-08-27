@@ -55,6 +55,7 @@ def make_blank_snippet():
         "tags": [],
         "hook": "",
         "text": "",
+        "created": utc_now_text(),
     }
 
 
@@ -100,6 +101,7 @@ def load_snippets():
             "tags": [string_value(tag) for tag in tags],
             "hook": string_value(basic.get("hook")),
             "text": string_value(basic.get("notes")),
+            "created": string_value(basic.get("date")),
         }
 
 
@@ -153,6 +155,7 @@ def update_snippet_entity(snippet):
         "tags": snippet["tags"],
         "hook": snippet["hook"],
         "notes": snippet["text"],
+        "date": snippet["created"],
     }
 
 
@@ -163,7 +166,10 @@ def get_matching_snippets(query):
     for snippet in snippets.values():
         if all(snippet_matches_term(snippet, term) for term in terms):
             matches.append(snippet)
-    return sorted(matches, key=lambda item: (item["title"].casefold(), item["id"]))
+    matches.sort(key=lambda item: (item["created"], item["id"]), reverse=True)
+    if not terms:
+        return matches[:50]
+    return matches
 
 
 def snippet_matches_term(snippet, term):
@@ -213,11 +219,12 @@ def create_main_window():
     top.grid(row=0, column=0, sticky="ew")
     top.columnconfigure(1, weight=1)
     ttk.Label(top, text="search:").grid(row=0, column=0, sticky="w")
-    search = ttk.Entry(top)
+    search_text = tk.StringVar()
+    search = ttk.Entry(top, textvariable=search_text)
     search.grid(row=0, column=1, padx=(6, 6), sticky="ew")
     ttk.Button(top, text="new", command=lambda: post_event({"type": "NEW_REQUESTED"})).grid(row=0, column=2)
-    search.bind("<KeyRelease>", lambda event: refresh_results())
     widgets["search"] = search
+    search_text.trace_add("write", lambda name, index, mode: refresh_results())
 
     results_frame = ttk.Frame(window, padding=(8, 0, 8, 0))
     results_frame.grid(row=1, column=0, sticky="nsew")
@@ -436,6 +443,7 @@ def run_snippets():
     g["root"] = root
     app.attach_tk(root)
     create_main_window()
+    refresh_results()
     update_cycle()
     root.mainloop()
 
